@@ -85,8 +85,11 @@ Alle Downloads unter: https://download.geofabrik.de/europe/germany/
 # Docker Volume erstellen
 docker volume create overpass_db
 
-# Daten importieren (nutzt alle .osm.bz2 Dateien im overpass-data Ordner)
+# Daten importieren (findet automatisch erste .osm.bz2 Datei, auch in Unterordnern)
 docker compose --profile import run --rm import
+
+# Tipp: Sie können OSM-Dateien in Unterordnern organisieren (z.B. overpass-data/backup/)
+# Das Import-Script findet sie automatisch
 ```
 
 ### 5. Overpass API starten
