@@ -102,7 +102,7 @@ docker compose --profile import run --rm import
 docker compose --profile production up -d
 ```
 
-The API is then available at http://localhost:8090
+The API is then available at http://localhost:8091
 
 ## Usage
 
@@ -110,18 +110,18 @@ The API is then available at http://localhost:8090
 
 **Check Status:**
 ```bash
-curl http://localhost:8090/api/status
+curl http://localhost:8091/api/status
 ```
 
 **Find Cities:**
 ```bash
-curl -XPOST http://localhost:8090/api/interpreter \
+curl -XPOST http://localhost:8091/api/interpreter \
   -d '[out:json];node["place"="city"]["name"="Berlin"];out;'
 ```
 
 **POIs in Bounding Box:**
 ```bash
-curl -XPOST http://localhost:8090/api/interpreter \
+curl -XPOST http://localhost:8091/api/interpreter \
   -d '[out:json];node["amenity"="cafe"](52.5,13.3,52.6,13.4);out;'
 ```
 
@@ -156,7 +156,7 @@ Available versions at: https://dev.overpass-api.de/releases/
 
 ### Ports
 
-- `8090` - Overpass API endpoint
+- `8091` - Overpass API endpoint
 
 ## Troubleshooting
 
