@@ -89,6 +89,20 @@ else
   fi
   
   echo "Merge completed. Merged file size: $(du -h "$MERGED_FILE" | cut -f1)"
+  
+  # Optional: Check referential integrity
+  if [ "${CHECK_REFS:-no}" = "yes" ]; then
+    echo ""
+    echo "Checking referential integrity..."
+    osmium check-refs "$MERGED_FILE"
+    if [ $? -ne 0 ]; then
+      echo "WARNING: Referential integrity check found issues."
+      echo "This is common with regional extracts that reference objects outside the region."
+      echo "The import will continue..."
+    else
+      echo "Referential integrity check passed."
+    fi
+  fi
   echo "Importing merged data..."
   echo "This may take several hours depending on total size..."
   
