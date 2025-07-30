@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package overpass;
+
+option go_package = "github.com/paule76/overpass-grpc/api";
+
+// Main Overpass gRPC Service
+service OverpassAPI {
+  // Standard query - returns complete result
+  rpc Query(QueryRequest) returns (QueryResponse);
+  
+  // Streaming query - streams results as they're processed
+  rpc StreamQuery(QueryRequest) returns (stream Element);
+  
+  // Get server status
+  rpc GetStatus(StatusRequest) returns (StatusResponse);
+  
+  // Kill a running query
+  rpc KillQuery(KillQueryRequest) returns (KillQueryResponse);
+}
+
+// Request types
+message QueryRequest {
+  string query = 1;  // Overpass QL query string
+  int32 timeout = 2; // Query timeout in seconds (default: 180)
+  int64 maxsize = 3; // Max response size in bytes
+}
+
+message StatusRequest {}
+
+message KillQueryRequest {
+  string query_id = 1;
+}
+
+// Response types
+message QueryResponse {
+  repeated Element elements = 1;
+  QueryMetadata metadata = 2;
+}
+
+message StatusResponse {
+  string version = 1;
+  int64 database_timestamp = 2;
+  int32 rate_limit = 3;
+  int32 available_slots = 4;
+}
+
+message KillQueryResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Core data types
+message Element {
+  oneof element {
+    Node node = 1;
+    Way way = 2;
+    Relation relation = 3;
+    Area area = 4;
+  }
+}
+
+message Node {
+  int64 id = 1;
+  double lat = 2;
+  double lon = 3;
+  map<string, string> tags = 4;
+  ElementMetadata metadata = 5;
+}
+
+message Way {
+  int64 id = 1;
+  repeated int64 node_refs = 2;
+  map<string, string> tags = 3;
+  ElementMetadata metadata = 4;
+  BoundingBox bounds = 5;
+}
+
+message Relation {
+  int64 id = 1;
+  repeated Member members = 2;
+  map<string, string> tags = 3;
+  ElementMetadata metadata = 4;
+  BoundingBox bounds = 5;
+}
+
+message Area {
+  int64 id = 1;
+  map<string, string> tags = 2;
+  repeated Coordinate coordinates = 3; // Outer ring first, then holes
+}
+
+// Helper types
+message Member {
+  enum Type {
+    NODE = 0;
+    WAY = 1;
+    RELATION = 2;
+  }
+  Type type = 1;
+  int64 ref = 2;
+  string role = 3;
+}
+
+message Coordinate {
+  double lat = 1;
+  double lon = 2;
+}
+
+message BoundingBox {
+  double min_lat = 1;
+  double min_lon = 2;
+  double max_lat = 3;
+  double max_lon = 4;
+}
+
+message ElementMetadata {
+  int32 version = 1;
+  int64 timestamp = 2;
+  int64 changeset = 3;
+  int32 uid = 4;
+  string user = 5;
+}
+
+message QueryMetadata {
+  string generator = 1;
+  string copyright = 2;
+  int64 timestamp_osm_base = 3;
+  int64 timestamp_areas_base = 4;
+  double execution_time = 5;
+}

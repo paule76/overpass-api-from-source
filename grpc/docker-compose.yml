@@ -1,0 +1,40 @@
+services:
+  # Existing Overpass API
+  overpass:
+    build: 
+      context: ..
+      args:
+        OVERPASS_VERSION: ${OVERPASS_VERSION:-latest}
+    image: overpass-api-from-source:${OVERPASS_VERSION:-latest}
+    container_name: overpass_api_grpc
+    restart: unless-stopped
+    volumes:
+      - overpass_db:/overpass_db_vol
+    environment:
+      - OVERPASS_META=no
+      - OVERPASS_SPACE=2000000000
+      - OVERPASS_MAX_TIMEOUT=300
+    networks:
+      - overpass-net
+
+  # gRPC Proxy
+  grpc-proxy:
+    build: ./proxy
+    container_name: overpass_grpc_proxy
+    restart: unless-stopped
+    ports:
+      - "50051:50051"  # gRPC port
+    environment:
+      - OVERPASS_URL=http://overpass:80
+    depends_on:
+      - overpass
+    networks:
+      - overpass-net
+
+volumes:
+  overpass_db:
+    external: true
+
+networks:
+  overpass-net:
+    driver: bridge
