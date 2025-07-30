@@ -1,8 +1,11 @@
 #!/bin/bash
 
-# Start nginx and fcgiwrap
+# Start nginx
 service nginx start
-service fcgiwrap start
+
+# Start fcgiwrap with spawn-fcgi for better performance
+# Multiple workers can handle concurrent requests
+spawn-fcgi -s /var/run/fcgiwrap.socket -F 4 -u www-data -g www-data /usr/sbin/fcgiwrap
 
 # Check if database exists
 if [ -f "/overpass_db_vol/db/nodes.bin" ]; then

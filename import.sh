@@ -108,8 +108,14 @@ else
   
   /opt/overpass/bin/init_osm3s.sh "$MERGED_FILE" /overpass_db_vol/db /opt/overpass --meta=no
   
-  # Clean up merged file
-  rm -f "$MERGED_FILE"
+  # Optionally keep merged file
+  if [ "${KEEP_MERGED:-no}" = "yes" ]; then
+    echo "Keeping merged file at: $MERGED_FILE"
+    echo "You can copy it out with: docker cp <container>:$MERGED_FILE ."
+  else
+    # Clean up merged file
+    rm -f "$MERGED_FILE"
+  fi
 fi
 
 echo "Import completed!"
