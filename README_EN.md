@@ -95,6 +95,9 @@ docker compose --profile import run --rm import
 # Tip: You can organize OSM files in subdirectories (e.g. overpass-data/backup/)
 # The import script will find all files and merge them automatically
 
+# With reference check (optional):
+CHECK_REFS=yes docker compose --profile import run --rm import
+
 # With existing database:
 # - Interactive mode (default): Asks for confirmation
 # - Force mode: IMPORT_MODE=force docker compose --profile import run --rm import
@@ -153,7 +156,12 @@ Available versions at: https://dev.overpass-api.de/releases/
 
 ### Environment Variables
 
+#### Build & Import
 - `OVERPASS_VERSION` - Overpass API version (default: latest)
+- `IMPORT_MODE` - Import behavior with existing DB: interactive, force, skip (default: interactive)
+- `CHECK_REFS` - Check referential integrity during multi-region import (default: no)
+
+#### Runtime
 - `OVERPASS_META` - Enable metadata (default: no)
 - `OVERPASS_SPACE` - Available space in bytes (default: 2000000000)
 - `OVERPASS_MAX_TIMEOUT` - Maximum query timeout in seconds (default: 300)
