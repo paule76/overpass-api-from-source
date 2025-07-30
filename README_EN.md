@@ -85,11 +85,15 @@ All downloads at: https://download.geofabrik.de/
 # Create Docker volume
 docker volume create overpass_db
 
-# Import data (automatically finds first .osm.bz2 file, including in subdirectories)
+# Import data (supports single or multiple .osm.bz2 files)
 docker compose --profile import run --rm import
 
+# NEW: Multi-Region Import!
+# - Single file: Direct import
+# - Multiple files: Automatic merging with osmium
+#
 # Tip: You can organize OSM files in subdirectories (e.g. overpass-data/backup/)
-# The import script will find them automatically
+# The import script will find all files and merge them automatically
 
 # With existing database:
 # - Interactive mode (default): Asks for confirmation

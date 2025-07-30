@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     sudo \
     bzip2 \
+    osmium-tool \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /tmp
