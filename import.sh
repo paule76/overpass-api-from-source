@@ -17,7 +17,7 @@ if [ -z "$OSM_FILE" ]; then
 fi
 
 echo "Importing: $OSM_FILE"
-echo "This may take several minutes depending on file size..."
+echo "This may take several minutes to hours depending on file size..."
 
 # Run the import
 /opt/overpass/bin/init_osm3s.sh "$OSM_FILE" /overpass_db_vol/db /opt/overpass --meta=no
