@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  overpass:
+    build: 
+      context: .
+      args:
+        OVERPASS_VERSION: ${OVERPASS_VERSION:-0.7.62.7}
+    image: overpass-api-from-source:${OVERPASS_VERSION:-0.7.62.7}
+    container_name: overpass_api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8090:80"
+    volumes:
+      - overpass_db:/overpass_db_vol
+    privileged: true
+    environment:
+      - OVERPASS_META=no
+      - OVERPASS_SPACE=2000000000
+      - OVERPASS_MAX_TIMEOUT=300
+    profiles:
+      - production
+
+  import:
+    build: 
+      context: .
+      args:
+        OVERPASS_VERSION: ${OVERPASS_VERSION:-0.7.62.7}
+    image: overpass-api-from-source:${OVERPASS_VERSION:-0.7.62.7}
+    container_name: overpass_import
+    volumes:
+      - overpass_db:/overpass_db_vol
+      - ./overpass-data:/data:ro
+      - ./import.sh:/import.sh:ro
+    privileged: true
+    environment:
+      - OVERPASS_META=no
+      - OVERPASS_SPACE=2000000000
+      - OVERPASS_MAX_TIMEOUT=300
+    profiles:
+      - import
+    command: /import.sh
+
+volumes:
+  overpass_db:
+    external: true

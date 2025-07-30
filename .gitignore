@@ -1,0 +1,30 @@
+# OSM Data files
+overpass-data/
+*.osm
+*.osm.bz2
+*.osm.pbf
+*.o5m
+
+# Docker volumes
+volumes/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*~
+
+# Environment files
+.env
+.env.local
