@@ -21,6 +21,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Claude specific
+.claude/
+
 # Backup files
 *.bak
 *~
