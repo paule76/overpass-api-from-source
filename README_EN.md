@@ -90,6 +90,11 @@ docker compose --profile import run --rm import
 
 # Tip: You can organize OSM files in subdirectories (e.g. overpass-data/backup/)
 # The import script will find them automatically
+
+# With existing database:
+# - Interactive mode (default): Asks for confirmation
+# - Force mode: IMPORT_MODE=force docker compose --profile import run --rm import
+# - Skip mode: IMPORT_MODE=skip docker compose --profile import run --rm import
 ```
 
 ### 5. Start Overpass API
