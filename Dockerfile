@@ -5,7 +5,7 @@
 FROM ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG OVERPASS_VERSION=0.7.62.7
+ARG OVERPASS_VERSION=latest
 
 RUN apt-get update && apt-get install -y \
     g++ \
@@ -23,9 +23,15 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /tmp
 
-RUN wget https://dev.overpass-api.de/releases/osm-3s_v${OVERPASS_VERSION}.tar.gz && \
-    tar -xzf osm-3s_v${OVERPASS_VERSION}.tar.gz && \
-    cd osm-3s_v${OVERPASS_VERSION} && \
+# Download and extract based on version (latest or specific)
+RUN if [ "$OVERPASS_VERSION" = "latest" ]; then \
+        wget https://dev.overpass-api.de/releases/osm-3s_latest.tar.gz && \
+        tar -xzf osm-3s_latest.tar.gz; \
+    else \
+        wget https://dev.overpass-api.de/releases/osm-3s_v${OVERPASS_VERSION}.tar.gz && \
+        tar -xzf osm-3s_v${OVERPASS_VERSION}.tar.gz; \
+    fi && \
+    cd osm-3s_v* && \
     ./configure CXXFLAGS="-O2" --prefix=/opt/overpass && \
     make -j$(nproc) && \
     make install && \

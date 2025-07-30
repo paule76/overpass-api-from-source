@@ -1,18 +1,25 @@
 #!/bin/bash
 
 # Default version - can be overridden
-OVERPASS_VERSION=${OVERPASS_VERSION:-0.7.62.7}
+OVERPASS_VERSION=${OVERPASS_VERSION:-latest}
 
 echo "Building Overpass API from source..."
 echo "Version: $OVERPASS_VERSION"
 echo ""
 
 # Build the Docker image with the specified version
-docker build \
-  --build-arg OVERPASS_VERSION=$OVERPASS_VERSION \
-  -t overpass-api-from-source:$OVERPASS_VERSION \
-  -t overpass-api-from-source:latest \
-  .
+if [ "$OVERPASS_VERSION" = "latest" ]; then
+  docker build \
+    --build-arg OVERPASS_VERSION=$OVERPASS_VERSION \
+    -t overpass-api-from-source:latest \
+    .
+else
+  docker build \
+    --build-arg OVERPASS_VERSION=$OVERPASS_VERSION \
+    -t overpass-api-from-source:$OVERPASS_VERSION \
+    -t overpass-api-from-source:latest \
+    .
+fi
 
 echo ""
 echo "Build completed!"

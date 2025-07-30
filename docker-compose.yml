@@ -3,8 +3,8 @@ services:
     build: 
       context: .
       args:
-        OVERPASS_VERSION: ${OVERPASS_VERSION:-0.7.62.7}
-    image: overpass-api-from-source:${OVERPASS_VERSION:-0.7.62.7}
+        OVERPASS_VERSION: ${OVERPASS_VERSION:-latest}
+    image: overpass-api-from-source:${OVERPASS_VERSION:-latest}
     container_name: overpass_api
     restart: unless-stopped
     ports:
@@ -23,8 +23,8 @@ services:
     build: 
       context: .
       args:
-        OVERPASS_VERSION: ${OVERPASS_VERSION:-0.7.62.7}
-    image: overpass-api-from-source:${OVERPASS_VERSION:-0.7.62.7}
+        OVERPASS_VERSION: ${OVERPASS_VERSION:-latest}
+    image: overpass-api-from-source:${OVERPASS_VERSION:-latest}
     container_name: overpass_import
     volumes:
       - overpass_db:/overpass_db_vol

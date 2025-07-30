@@ -2,7 +2,7 @@
 
 *[Deutsche README](README.md)*
 
-A Docker container that compiles Overpass API v0.7.62.7 directly from source code. Fixes known issues with the wiktorn/overpass-api image when processing regional OSM extracts.
+A Docker container that compiles Overpass API directly from source code. Uses the latest version by default (as recommended by Overpass developers). Fixes known issues with the wiktorn/overpass-api image when processing regional OSM extracts.
 
 ## Problem
 
@@ -11,7 +11,7 @@ The official wiktorn/overpass-api Docker image has a bug when processing regiona
 ## Features
 
 - ✅ Compiled from official source code
-- ✅ Flexible version selection (default: v0.7.62.7)
+- ✅ Flexible version selection (default: latest - always the newest version)
 - ✅ No precompiled binaries - full transparency
 - ✅ Fixes std::out_of_range errors with regional extracts
 - ✅ Optimized for stability with C++ flags
@@ -35,11 +35,11 @@ cd overpass-api-from-source
 
 #### 2. Build Docker Image
 ```bash
-# Default version (0.7.62.7)
+# Default: Latest version (recommended)
 ./build.sh
 
-# Or build different version
-OVERPASS_VERSION=0.7.62.6 ./build.sh
+# Or build specific version
+OVERPASS_VERSION=0.7.62.7 ./build.sh
 ```
 
 ### 3. Prepare OSM Data
@@ -144,7 +144,7 @@ Available versions at: https://dev.overpass-api.de/releases/
 
 ### Environment Variables
 
-- `OVERPASS_VERSION` - Overpass API version (default: 0.7.62.7)
+- `OVERPASS_VERSION` - Overpass API version (default: latest)
 - `OVERPASS_META` - Enable metadata (default: no)
 - `OVERPASS_SPACE` - Available space in bytes (default: 2000000000)
 - `OVERPASS_MAX_TIMEOUT` - Maximum query timeout in seconds (default: 300)
