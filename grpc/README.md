@@ -171,12 +171,18 @@ python3 test_real_performance.py
 
 ## ✅ Status: Production Ready!
 
-**UPDATE: JSON Parser ist jetzt vollständig implementiert!**
+**Vollständig implementiert und getestet!**
 - ✅ Alle OSM Element-Typen werden unterstützt (Nodes, Ways, Relations)
+- ✅ Count-Queries (`out count;`) funktionieren korrekt
 - ✅ JSON→Protobuf Konvertierung mit nlohmann/json
-- ✅ Identische Ergebnisse wie HTTP API
-- ✅ 26-70% Datenreduktion je nach Query
+- ✅ Identische Ergebnisse wie HTTP API (verifiziert mit 47.780 Nodes in München)
+- ✅ 27-48% Datenreduktion bei typischen Queries
 - ✅ Streaming Support für große Datenmengen
+
+### Bekannte Einschränkungen
+- Performance ist aktuell nicht besser als HTTP (wegen doppeltem JSON Parsing)
+- Für echte Performance-Gewinne wäre eine native C++ Implementation nötig
+- Die Bandbreiten-Ersparnis ist aber schon heute nutzbar!
 
 ## 📝 Lizenz
 
