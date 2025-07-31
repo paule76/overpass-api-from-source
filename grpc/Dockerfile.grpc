@@ -1,0 +1,95 @@
+# Overpass API with gRPC support
+FROM ubuntu:22.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG OVERPASS_VERSION=latest
+
+# Install build dependencies + gRPC/protobuf tools
+RUN apt-get update && apt-get install -y \
+    # Existing Overpass dependencies
+    g++ \
+    make \
+    expat \
+    libexpat1-dev \
+    zlib1g-dev \
+    nginx \
+    fcgiwrap \
+    spawn-fcgi \
+    wget \
+    sudo \
+    bzip2 \
+    osmium-tool \
+    # New: gRPC and protobuf dependencies
+    cmake \
+    git \
+    pkg-config \
+    protobuf-compiler \
+    libprotobuf-dev \
+    libgrpc++-dev \
+    libgrpc-dev \
+    grpc-proto \
+    # Optional: For better performance
+    libc-ares-dev \
+    libre2-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp
+
+# Build Overpass (unchanged)
+RUN if [ "$OVERPASS_VERSION" = "latest" ]; then \
+        wget https://dev.overpass-api.de/releases/osm-3s_latest.tar.gz && \
+        tar -xzf osm-3s_latest.tar.gz; \
+    else \
+        wget https://dev.overpass-api.de/releases/osm-3s_v${OVERPASS_VERSION}.tar.gz && \
+        tar -xzf osm-3s_v${OVERPASS_VERSION}.tar.gz; \
+    fi && \
+    cd osm-3s_v* && \
+    ./configure CXXFLAGS="-O2" --prefix=/opt/overpass && \
+    make -j$(nproc) && \
+    make install && \
+    cd / && \
+    rm -rf /tmp/*
+
+# Build gRPC C++ server
+WORKDIR /opt/grpc-server
+
+# Copy proto files and server code
+COPY grpc/overpass.proto ./
+COPY grpc/server/* ./
+
+# Generate C++ code from proto
+RUN protoc --cpp_out=. --grpc_out=. \
+    --plugin=protoc-gen-grpc=/usr/bin/grpc_cpp_plugin \
+    overpass.proto
+
+# Build the gRPC server
+RUN g++ -std=c++17 \
+    -I/usr/include \
+    -L/usr/lib/x86_64-linux-gnu \
+    -o overpass-grpc-server \
+    grpc_server.cpp \
+    overpass.pb.cc \
+    overpass.grpc.pb.cc \
+    -lgrpc++ \
+    -lgrpc \
+    -lprotobuf \
+    -lpthread \
+    -ldl
+
+# Setup users and directories
+RUN useradd -m -s /bin/bash overpass && \
+    mkdir -p /db /opt/overpass/var && \
+    chown -R overpass:overpass /db /opt/overpass/var
+
+# Copy configuration files
+COPY nginx-grpc.conf /etc/nginx/sites-available/default
+COPY start-grpc.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+# Expose ports
+EXPOSE 80     # HTTP/FastCGI (legacy)
+EXPOSE 50051  # gRPC
+
+WORKDIR /db
+CMD ["/usr/local/bin/start.sh"]

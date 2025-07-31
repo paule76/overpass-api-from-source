@@ -17,9 +17,9 @@ services:
     networks:
       - overpass-net
 
-  # gRPC Proxy
+  # gRPC Proxy Mock (for testing)
   grpc-proxy:
-    build: ./proxy
+    build: ./proxy-mock
     container_name: overpass_grpc_proxy
     restart: unless-stopped
     ports:

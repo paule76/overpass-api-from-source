@@ -12,7 +12,7 @@ import (
     "time"
 
     "google.golang.org/grpc"
-    pb "github.com/paule76/overpass-grpc/api"
+    // pb "github.com/paule76/overpass-grpc/api" // Will be generated from proto
 )
 
 type server struct {
