@@ -10,8 +10,14 @@ spawn-fcgi -s /var/run/fcgiwrap.socket -F 12 -u www-data -g www-data /usr/sbin/f
 if [ -f "/overpass_db_vol/db/nodes.bin" ]; then
     echo "Using existing database in /overpass_db_vol/db"
     DB_DIR="/overpass_db_vol/db"
+elif [ -f "/db/nodes.bin" ]; then
+    echo "Using existing database in /db"
+    DB_DIR="/db"
 else
     echo "No database found!"
+    echo "Looking for database files..."
+    ls -la /overpass_db_vol/db/ || true
+    ls -la /db/ || true
     exit 1
 fi
 

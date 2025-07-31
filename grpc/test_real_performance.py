@@ -19,7 +19,7 @@ def test_json_performance():
     
     start = time.time()
     response = requests.post(
-        'http://localhost:8091/api/interpreter',
+        'http://localhost:8092/api/interpreter',
         data={'data': query},
         timeout=30
     )
@@ -91,10 +91,10 @@ def show_real_world_example():
 if __name__ == "__main__":
     # Check if Overpass is running
     try:
-        requests.get('http://localhost:8091/api/status', timeout=2)
+        requests.get('http://localhost:8092/api/status', timeout=2)
         if test_json_performance():
             show_real_world_example()
     except:
-        print("Overpass API not reachable on port 8091")
+        print("Overpass API not reachable on port 8092")
         print("\nShowing theoretical performance comparison:")
         show_real_world_example()

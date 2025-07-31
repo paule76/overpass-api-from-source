@@ -32,9 +32,8 @@ private:
         std::array<char, 128> buffer;
         std::string result;
         
-        // Build command to call Overpass interpreter
-        std::string cmd = "/opt/overpass/bin/osm3s_query --db-dir=/overpass_db_vol/db <<EOF\n" 
-                         + "[out:json];" + query + "\nEOF";
+        // Build command to call Overpass interpreter via dispatcher
+        std::string cmd = std::string("echo '[out:json];") + query + "' | /opt/overpass/bin/osm3s_query";
         
         // Execute and capture output
         std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);

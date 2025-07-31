@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     libgrpc++-dev \
     libgrpc-dev \
     grpc-proto \
+    protobuf-compiler-grpc \
     # Optional: For better performance
     libc-ares-dev \
     libre2-dev \
@@ -72,6 +73,7 @@ RUN g++ -std=c++17 \
     overpass.pb.cc \
     overpass.grpc.pb.cc \
     -lgrpc++ \
+    -lgrpc++_reflection \
     -lgrpc \
     -lprotobuf \
     -lpthread \
@@ -83,13 +85,13 @@ RUN useradd -m -s /bin/bash overpass && \
     chown -R overpass:overpass /db /opt/overpass/var
 
 # Copy configuration files
-COPY nginx-grpc.conf /etc/nginx/sites-available/default
-COPY start-grpc.sh /usr/local/bin/start.sh
+COPY grpc/nginx-grpc.conf /etc/nginx/sites-available/default
+COPY grpc/start-grpc.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 # Expose ports
-EXPOSE 80     # HTTP/FastCGI (legacy)
-EXPOSE 50051  # gRPC
+EXPOSE 80
+EXPOSE 50051
 
 WORKDIR /db
 CMD ["/usr/local/bin/start.sh"]

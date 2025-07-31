@@ -31,3 +31,10 @@ Thumbs.db
 # Environment files
 .env
 .env.local
+venv/
+*/venv/
+grpc/venv/
+grpc/client/__pycache__/
+grpc/client/overpass_pb2.py
+grpc/client/overpass_pb2_grpc.py
+grpc/generated/
