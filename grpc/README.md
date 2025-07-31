@@ -1,15 +1,18 @@
-# Overpass gRPC/Protobuf Integration
+# Overpass gRPC/Protobuf Integration - Proof of Concept
 
-High-Performance Erweiterung für die Overpass API mit gRPC und Protocol Buffers.
+⚠️ **WICHTIG: Dies ist ein experimenteller Ansatz zur Performance-Optimierung!**
 
-## 🚀 Was ist das?
+Dieses Projekt war ein Versuch, die Performance-Probleme der Overpass API durch gRPC/Protobuf zu lösen. 
+Die Ergebnisse zeigen jedoch, dass ein Wrapper-Ansatz nicht die erhoffte Verbesserung bringt.
 
-Eine **produktionsreife** gRPC/Protobuf Integration für die Overpass API, die massive Performance-Verbesserungen bringt:
+## 🔬 Was wurde getestet?
 
-- **70% weniger Daten** bei großen Queries
-- **8x schnelleres Parsing**
-- **93% weniger RAM-Verbrauch** durch Streaming
-- **Vollständig kompatibel** mit der bestehenden HTTP API
+Ein Proof of Concept für eine gRPC/Protobuf Integration der Overpass API:
+
+- **Ziel:** Performance-Verbesserung durch binäres Protokoll
+- **Ansatz:** gRPC-Wrapper um die bestehende HTTP API
+- **Ergebnis:** ⚠️ **10-20% LANGSAMER als HTTP!**
+- **Grund:** Doppeltes Parsing (JSON → Protobuf) frisst alle Vorteile auf
 
 ## 📊 Performance-Vergleich (Real gemessen!)
 
@@ -169,20 +172,36 @@ cd grpc
 python3 test_real_performance.py
 ```
 
-## ✅ Status: Production Ready!
+## 📊 Lessons Learned
 
-**Vollständig implementiert und getestet!**
-- ✅ Alle OSM Element-Typen werden unterstützt (Nodes, Ways, Relations)
-- ✅ Count-Queries (`out count;`) funktionieren korrekt
-- ✅ JSON→Protobuf Konvertierung mit nlohmann/json
-- ✅ Identische Ergebnisse wie HTTP API (verifiziert mit 47.780 Nodes in München)
-- ✅ 27-48% Datenreduktion bei typischen Queries
-- ✅ Streaming Support für große Datenmengen
+### Was funktioniert ✅
+- Technisch vollständige Implementation (alle OSM-Typen, Count-Queries, etc.)
+- 27-48% Datenreduktion (gut für Bandbreite)
+- Identische Ergebnisse wie HTTP API
+- Streaming Support implementiert
 
-### Bekannte Einschränkungen
-- Performance ist aktuell nicht besser als HTTP (wegen doppeltem JSON Parsing)
-- Für echte Performance-Gewinne wäre eine native C++ Implementation nötig
-- Die Bandbreiten-Ersparnis ist aber schon heute nutzbar!
+### Was NICHT funktioniert ❌
+- **Performance ist SCHLECHTER als HTTP** (0.8-0.9x Speed)
+- Overhead durch JSON→Protobuf Konvertierung
+- CPU-Last höher als bei direktem HTTP
+
+### Fazit
+**Für Performance-Optimierung:** Nutzt die HTTP API mit mehreren fcgiwrap Workern!
+```bash
+# Besser als gRPC:
+spawn-fcgi -s /var/run/fcgiwrap.socket -F 12 -u www-data /usr/sbin/fcgiwrap
+```
+
+**Für Bandbreiten-Optimierung:** gRPC könnte bei mobilen Apps helfen (kleinere Pakete)
+
+## 🎯 Was wäre nötig für echte Performance?
+
+Eine native gRPC Implementation direkt in Overpass:
+```
+Overpass Core → Direkt Protobuf → Client (ohne JSON Umweg!)
+```
+
+Dieses Projekt zeigt: **Wrapper sind keine Lösung für Performance-Probleme!**
 
 ## 📝 Lizenz
 

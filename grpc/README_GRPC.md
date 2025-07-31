@@ -1,19 +1,30 @@
-# Overpass API with gRPC Support
+# Overpass API with gRPC Support - Ein Experiment
 
-Diese Implementierung erweitert die Overpass API um gRPC/Protobuf Support für massive Performance-Verbesserungen.
+⚠️ **Performance-Warnung: Diese Implementation ist LANGSAMER als HTTP!**
 
-## 🚀 Performance Vorteile (Gemessen!)
+Diese Implementierung war ein Proof of Concept, um zu testen ob gRPC/Protobuf 
+die Performance-Probleme der Overpass API lösen kann. Das Ergebnis: Ein Wrapper
+reicht nicht aus - es braucht eine native Implementation.
 
-Bei typischen Abfragen:
-- **27% weniger Daten** bei 153 Cafés (82KB → 60KB)
-- **48% weniger Daten** bei Infrastruktur-Queries
+## 📊 Tatsächliche Ergebnisse (Gemessen!)
+
+### Positive Aspekte:
+- **27-48% weniger Daten** (gut für Bandbreite)
 - **Identische Ergebnisse** wie HTTP API ✅
+- **Streaming Support** funktioniert
 
-Bei großen Abfragen (z.B. alle Highways in Bayern):
-- **70% weniger Datenübertragung** (500 MB → 150 MB)
-- **8x schnellere Verarbeitung** (2.5s → 0.3s)
-- **93% weniger Speicherverbrauch** (3 GB → 200 MB)
-- **Streaming Support** für noch bessere Performance
+### Negative Aspekte:
+- **10-20% LANGSAMER** als HTTP (0.8-0.9x Speed)
+- **Höhere CPU-Last** durch doppeltes Parsing
+- **Kein Performance-Gewinn** trotz Protobuf
+
+### Warum ist es langsamer?
+```
+HTTP:  Overpass → JSON → Client
+gRPC:  Overpass → JSON → Parser → Protobuf → Client
+                         ↑
+                    Extra Overhead!
+```
 
 ## 📦 Installation
 
