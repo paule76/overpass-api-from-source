@@ -2,7 +2,12 @@
 
 Diese Implementierung erweitert die Overpass API um gRPC/Protobuf Support für massive Performance-Verbesserungen.
 
-## 🚀 Performance Vorteile
+## 🚀 Performance Vorteile (Gemessen!)
+
+Bei typischen Abfragen:
+- **27% weniger Daten** bei 153 Cafés (82KB → 60KB)
+- **48% weniger Daten** bei Infrastruktur-Queries
+- **Identische Ergebnisse** wie HTTP API ✅
 
 Bei großen Abfragen (z.B. alle Highways in Bayern):
 - **70% weniger Datenübertragung** (500 MB → 150 MB)

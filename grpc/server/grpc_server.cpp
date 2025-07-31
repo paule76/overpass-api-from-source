@@ -6,6 +6,7 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
+#include <nlohmann/json.hpp>
 
 #include "overpass.grpc.pb.h"
 
@@ -13,6 +14,8 @@
 #include <cstdio>
 #include <array>
 #include <sstream>
+
+using json = nlohmann::json;
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -49,42 +52,89 @@ private:
     }
     
     // Parse JSON and convert to protobuf
-    void parseJsonToProtobuf(const std::string& json, QueryResponse* response) {
-        // In production, use a proper JSON parser like nlohmann/json
-        // This is a simplified example
-        
-        // Extract elements array
-        size_t elementsPos = json.find("\"elements\":");
-        if (elementsPos == std::string::npos) return;
-        
-        // Simple node extraction (example)
-        size_t nodePos = json.find("\"type\":\"node\"", elementsPos);
-        while (nodePos != std::string::npos) {
-            auto* element = response->add_elements();
-            auto* node = element->mutable_node();
+    void parseJsonToProtobuf(const std::string& jsonStr, QueryResponse* response) {
+        try {
+            json j = json::parse(jsonStr);
             
-            // Extract ID
-            size_t idPos = json.find("\"id\":", nodePos);
-            if (idPos != std::string::npos) {
-                idPos += 5;
-                node->set_id(std::stoll(json.substr(idPos)));
+            // Parse metadata
+            if (j.contains("osm3s")) {
+                auto* metadata = response->mutable_metadata();
+                metadata->set_generator(j.value("generator", "Overpass API"));
+                if (j["osm3s"].contains("copyright")) {
+                    metadata->set_copyright(j["osm3s"]["copyright"]);
+                }
             }
             
-            // Extract lat/lon
-            size_t latPos = json.find("\"lat\":", nodePos);
-            if (latPos != std::string::npos) {
-                latPos += 6;
-                node->set_lat(std::stod(json.substr(latPos)));
+            // Parse elements
+            if (j.contains("elements")) {
+                for (const auto& elem : j["elements"]) {
+                    auto* element = response->add_elements();
+                    std::string type = elem.value("type", "");
+                    
+                    if (type == "node") {
+                        auto* node = element->mutable_node();
+                        node->set_id(elem.value("id", 0));
+                        node->set_lat(elem.value("lat", 0.0));
+                        node->set_lon(elem.value("lon", 0.0));
+                        
+                        // Parse tags
+                        if (elem.contains("tags")) {
+                            for (auto& [key, value] : elem["tags"].items()) {
+                                (*node->mutable_tags())[key] = value.get<std::string>();
+                            }
+                        }
+                    }
+                    else if (type == "way") {
+                        auto* way = element->mutable_way();
+                        way->set_id(elem.value("id", 0));
+                        
+                        // Parse node refs
+                        if (elem.contains("nodes")) {
+                            for (const auto& nodeRef : elem["nodes"]) {
+                                way->add_node_refs(nodeRef.get<int64_t>());
+                            }
+                        }
+                        
+                        // Parse tags
+                        if (elem.contains("tags")) {
+                            for (auto& [key, value] : elem["tags"].items()) {
+                                (*way->mutable_tags())[key] = value.get<std::string>();
+                            }
+                        }
+                    }
+                    else if (type == "relation") {
+                        auto* relation = element->mutable_relation();
+                        relation->set_id(elem.value("id", 0));
+                        
+                        // Parse members
+                        if (elem.contains("members")) {
+                            for (const auto& memberJson : elem["members"]) {
+                                auto* member = relation->add_members();
+                                member->set_ref(memberJson.value("ref", 0));
+                                member->set_role(memberJson.value("role", ""));
+                                
+                                std::string memberType = memberJson.value("type", "");
+                                if (memberType == "node") {
+                                    member->set_type(overpass::Member::NODE);
+                                } else if (memberType == "way") {
+                                    member->set_type(overpass::Member::WAY);
+                                } else if (memberType == "relation") {
+                                    member->set_type(overpass::Member::RELATION);
+                                }
+                            }
+                        }
+                        
+                        // Parse tags
+                        if (elem.contains("tags")) {
+                            for (auto& [key, value] : elem["tags"].items()) {
+                                (*relation->mutable_tags())[key] = value.get<std::string>();
+                            }
+                        }
+                    }
+                }
             }
-            
-            size_t lonPos = json.find("\"lon\":", nodePos);
-            if (lonPos != std::string::npos) {
-                lonPos += 6;
-                node->set_lon(std::stod(json.substr(lonPos)));
-            }
-            
-            // Find next node
-            nodePos = json.find("\"type\":\"node\"", nodePos + 1);
+        } catch (const std::exception& e) {
+            std::cerr << "JSON parsing error: " << e.what() << std::endl;
         }
     }
 
