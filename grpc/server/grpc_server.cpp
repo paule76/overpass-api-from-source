@@ -84,6 +84,23 @@ private:
                             }
                         }
                     }
+                    else if (type == "count") {
+                        // Count queries return special count elements
+                        auto* node = element->mutable_node();
+                        node->set_id(elem.value("id", 0));
+                        node->set_lat(0.0);
+                        node->set_lon(0.0);
+                        
+                        // Parse count data as tags
+                        if (elem.contains("tags")) {
+                            for (auto& [key, value] : elem["tags"].items()) {
+                                (*node->mutable_tags())[key] = value.get<std::string>();
+                            }
+                        }
+                        
+                        // Add type indicator
+                        (*node->mutable_tags())["_type"] = "count";
+                    }
                     else if (type == "way") {
                         auto* way = element->mutable_way();
                         way->set_id(elem.value("id", 0));
